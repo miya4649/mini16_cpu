@@ -16,5 +16,5 @@ Maximum frequency:
 DE0-CV: 240 MHz (Proofed)
 Kintex UltraScale+: 710 MHz (Simulation)
 
-Documents (Japanese):
+Documents and Latest Version (Japanese):
 http://cellspe.matrix.jp/zerofpga/mini16_cpu.html
