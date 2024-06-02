@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2015, miya
+  Copyright (c) 2017, miya
   All rights reserved.
 
   Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -13,12 +13,70 @@
   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-public class AsmTop
-{
-  private static final Examples examples = new Examples();
+#include <fcntl.h>
+#include <termios.h>
+#include <stdlib.h>
+#include <strings.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <signal.h>
+#include <stdint.h>
+#include "uartlib.h"
 
-  public static void main(String[] args)
+static int quit = 0;
+
+void usage(char *command)
+{
+  printf("Usage: %s [UART_device]\nSupported ENV: UART_DEVICE\n", command);
+  exit(EXIT_FAILURE);
+}
+
+void sig_handler()
+{
+  quit = 1;
+}
+
+int main(int argc, char *argv[])
+{
+  int uart;
+  char *devicename;
+  uint8_t data = 0;
+  struct sigaction sa;
+
+  quit = 0;
+  bzero(&sa, sizeof(struct sigaction));
+  sa.sa_handler = sig_handler;
+  if (sigaction(SIGINT, &sa, NULL) == -1)
   {
-    examples.do_asm(args);
+    perror("Error: sigaction");
+    return -1;
   }
+
+  // check opts
+  if (argc > 2)
+  {
+    usage(argv[0]);
+  }
+  devicename = getenv("UART_DEVICE");
+  if (argc == 2)
+  {
+    devicename = argv[1];
+  }
+  if (devicename == NULL)
+  {
+    printf("Error: bad device\n");
+    return -1;
+  }
+
+  uart = uart_open(devicename);
+
+  while (quit == 0)
+  {
+    uart_read(uart, &data, 1);
+    printf("%c", data);
+  }
+
+  uart_close(uart);
+  printf("Exited.\n");
+  return 0;
 }

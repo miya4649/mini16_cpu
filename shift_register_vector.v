@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2018, miya
+  Copyright (c) 2016, miya
   All rights reserved.
 
   Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -13,51 +13,27 @@
   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-module top
+// DEPTH >= 2
+// Latency = DEPTH
+
+module shift_register_vector
+  #(
+    parameter WIDTH = 8,
+    parameter DEPTH = 3
+    )
   (
-   input        CLK,
-   input  [1:0] BTN,
-   output [1:0] LED
+   input              clk,
+   input [WIDTH-1:0]  data_in,
+   output [WIDTH-1:0] data_out
    );
 
-  wire [15:0]   led;
-  assign LED = led;
-
-  // generate reset signal (push button 1)
-  reg  reset;
-  reg  reset1;
-  reg  resetpll;
-  reg  resetpll1;
-
-  always @(posedge CLK)
-    begin
-      resetpll1 <= ~BTN[0];
-      resetpll <= resetpll1;
-    end
+  reg [WIDTH*DEPTH-1:0] s_reg;
 
   always @(posedge clk)
     begin
-      reset1 <= ~pll_locked;
-      reset <= reset1;
+      s_reg <= {s_reg[WIDTH*(DEPTH-1)-1:0], data_in};
     end
 
-  // pll
-  wire clk;
-  wire pll_locked;
-
-  clk_wiz_0 clk_wiz_0_inst_0
-   (
-    .clk_out1 (clk),
-    .reset (resetpll),
-    .locked (pll_locked),
-    .clk_in1 (CLK)
-   );
-
-  mini16_soc mini16_soc_0
-    (
-     .clk (clk),
-     .reset (reset),
-     .led (led)
-     );
+  assign data_out = s_reg[WIDTH*DEPTH-1:WIDTH*(DEPTH-1)];
 
 endmodule

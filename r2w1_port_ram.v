@@ -13,26 +13,30 @@
   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// ver. 2024/04/21
+
 module r2w1_port_ram
   #(
-    parameter DATA_WIDTH=8,
-    parameter ADDR_WIDTH=12
+    parameter DATA_WIDTH = 8,
+    parameter ADDR_WIDTH = 12,
+    parameter RAM_TYPE = "auto"
     )
   (
-   input                         clk,
-   input [(ADDR_WIDTH-1):0]      addr_r_a,
-   input [(ADDR_WIDTH-1):0]      addr_r_b,
-   input [(ADDR_WIDTH-1):0]      addr_w,
-   input [(DATA_WIDTH-1):0]      data_in,
-   input                         we,
-   output [(DATA_WIDTH-1):0] data_out_a,
-   output [(DATA_WIDTH-1):0] data_out_b
+   input wire                     clk,
+   input wire [(ADDR_WIDTH-1):0]  addr_r_a,
+   input wire [(ADDR_WIDTH-1):0]  addr_r_b,
+   input wire [(ADDR_WIDTH-1):0]  addr_w,
+   input wire [(DATA_WIDTH-1):0]  data_in,
+   input wire                     we,
+   output wire [(DATA_WIDTH-1):0] data_out_a,
+   output wire [(DATA_WIDTH-1):0] data_out_b
    );
 
   rw_port_ram
     #(
       .DATA_WIDTH (DATA_WIDTH),
-      .ADDR_WIDTH (ADDR_WIDTH)
+      .ADDR_WIDTH (ADDR_WIDTH),
+      .RAM_TYPE (RAM_TYPE)
       )
   rw_port_ram_a
     (
@@ -47,7 +51,8 @@ module r2w1_port_ram
   rw_port_ram
     #(
       .DATA_WIDTH (DATA_WIDTH),
-      .ADDR_WIDTH (ADDR_WIDTH)
+      .ADDR_WIDTH (ADDR_WIDTH),
+      .RAM_TYPE (RAM_TYPE)
       )
   rw_port_ram_b
     (

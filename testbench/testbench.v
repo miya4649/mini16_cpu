@@ -14,33 +14,51 @@
 */
 
 `timescale 1ns / 1ps
+`define USE_UART
+`define DEBUG
 
 module testbench;
 
   localparam STEP  = 20; // 20 ns: 50MHz
-  localparam TICKS = 10000;
+  localparam TICKS = 20000;
 
   localparam TRUE = 1'b1;
   localparam FALSE = 1'b0;
-  localparam ONE = 1'd1;
-  localparam ZERO = 1'd0;
+  localparam CORES = 4;
   localparam DEPTH_REG = 5;
+  localparam UART_CLK_HZ = 50000000;
+  localparam UART_SCLK_HZ = 5000000;
 
   reg clk;
   reg reset;
-  wire [9:0] led;
+  wire [15:0] led;
+`ifdef USE_UART
+  // uart
+  wire uart_txd;
+  wire uart_rxd;
+  wire uart_re;
+  wire [7:0] uart_data_rx;
+`endif
 
-  integer            i;
+  integer i;
   initial
     begin
       $dumpfile("wave.vcd");
       $dumpvars(10, testbench);
+      $monitor("time: %d reset: %d led: %d uart_re: %d uart_data_rx: %c", $time, reset, led, uart_re, uart_data_rx);
       for (i = 0; i < (1 << DEPTH_REG); i = i + 1)
         begin
-          $dumpvars(0, testbench.mini16_soc_0.mini16_cpu_0.reg_file.rw_port_ram_a.ram[i]);
-          $dumpvars(0, testbench.mini16_soc_0.mem_d.ram[i]);
+          $dumpvars(2, testbench.mini16_soc_0.mini16_cpu_master.reg_file.rw_port_ram_a.gen.ram[i]);
         end
-      $monitor("time: %d reset: %d led: %d", $time, reset, led);
+      for (i = 0; i < 4; i = i + 1)
+        begin
+          $dumpvars(0, testbench.mini16_soc_0.master_mem_d.ram[i]);
+        end
+      for (i = 0; i < 16; i = i + 1)
+        begin
+          $dumpvars(0, testbench.mini16_soc_0.io_reg_r[i]);
+          $dumpvars(0, testbench.mini16_soc_0.io_reg_w[i]);
+        end
     end
 
   // generate clk
@@ -68,11 +86,41 @@ module testbench;
       $finish;
     end
 
-  mini16_soc mini16_soc_0
+  mini16_soc
+    #(
+      .UART_CLK_HZ (UART_CLK_HZ),
+      .UART_SCLK_HZ (UART_SCLK_HZ)
+      )
+  mini16_soc_0
     (
      .clk (clk),
      .reset (reset),
+`ifdef USE_UART
+     .uart_rxd (uart_rxd),
+     .uart_txd (uart_txd),
+`endif
      .led (led)
      );
+
+`ifdef USE_UART
+  uart
+    #(
+      .CLK_HZ (UART_CLK_HZ),
+      .SCLK_HZ (UART_SCLK_HZ),
+      .WIDTH (8)
+      )
+  uart_0
+    (
+     .clk (clk),
+     .reset (reset),
+     .rxd (uart_txd),
+     .start (),
+     .data_tx (),
+     .txd (),
+     .busy (),
+     .re (uart_re),
+     .data_rx (uart_data_rx)
+     );
+`endif
 
 endmodule

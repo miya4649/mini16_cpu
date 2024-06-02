@@ -13,105 +13,137 @@
   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// ver. 2024/06/01
+/*
+ ver. 2024/04/21
+ write delay: immediately
+ read delay: 2 clock cycle
+*/
 
-module rw_port_ram
+module dual_clk_ram
   #(
     parameter DATA_WIDTH = 8,
     parameter ADDR_WIDTH = 12,
     parameter RAM_TYPE = "auto"
     )
   (
-   input wire                    clk,
-   input wire [(ADDR_WIDTH-1):0] addr_r,
-   input wire [(ADDR_WIDTH-1):0] addr_w,
    input wire [(DATA_WIDTH-1):0] data_in,
+   input wire [(ADDR_WIDTH-1):0] read_addr,
+   input wire [(ADDR_WIDTH-1):0] write_addr,
    input wire                    we,
+   input wire                    read_clock,
+   input wire                    write_clock,
    output reg [(DATA_WIDTH-1):0] data_out
    );
+
+  reg [(ADDR_WIDTH-1):0]         read_addr_reg;
+  always @(posedge read_clock)
+    begin
+      read_addr_reg <= read_addr;
+    end
 
   generate
     if (RAM_TYPE == "xi_distributed")
       begin: gen
         (* ram_style = "distributed" *) reg [DATA_WIDTH-1:0] ram [0:(1 << ADDR_WIDTH)-1];
-        always @(posedge clk)
+        always @(posedge read_clock)
           begin
-            data_out <= ram[addr_r];
+            data_out <= ram[read_addr_reg];
+          end
+        always @(posedge write_clock)
+          begin
             if (we)
               begin
-                ram[addr_w] <= data_in;
+                ram[write_addr] <= data_in;
               end
           end
       end
     else if (RAM_TYPE == "xi_block")
       begin: gen
         (* ram_style = "block" *) reg [DATA_WIDTH-1:0] ram [0:(1 << ADDR_WIDTH)-1];
-        always @(posedge clk)
+        always @(posedge read_clock)
           begin
-            data_out <= ram[addr_r];
+            data_out <= ram[read_addr_reg];
+          end
+        always @(posedge write_clock)
+          begin
             if (we)
               begin
-                ram[addr_w] <= data_in;
+                ram[write_addr] <= data_in;
               end
           end
       end
     else if (RAM_TYPE == "xi_register")
       begin: gen
         (* ram_style = "register" *) reg [DATA_WIDTH-1:0] ram [0:(1 << ADDR_WIDTH)-1];
-        always @(posedge clk)
+        always @(posedge read_clock)
           begin
-            data_out <= ram[addr_r];
+            data_out <= ram[read_addr_reg];
+          end
+        always @(posedge write_clock)
+          begin
             if (we)
               begin
-                ram[addr_w] <= data_in;
+                ram[write_addr] <= data_in;
               end
           end
       end
     else if (RAM_TYPE == "xi_ultra")
       begin: gen
         (* ram_style = "ultra" *) reg [DATA_WIDTH-1:0] ram [0:(1 << ADDR_WIDTH)-1];
-        always @(posedge clk)
+        always @(posedge read_clock)
           begin
-            data_out <= ram[addr_r];
+            data_out <= ram[read_addr_reg];
+          end
+        always @(posedge write_clock)
+          begin
             if (we)
               begin
-                ram[addr_w] <= data_in;
+                ram[write_addr] <= data_in;
               end
           end
       end
     else if (RAM_TYPE == "al_logic")
       begin: gen
         (* ramstyle = "logic" *) reg [DATA_WIDTH-1:0] ram [0:(1 << ADDR_WIDTH)-1];
-        always @(posedge clk)
+        always @(posedge read_clock)
           begin
-            data_out <= ram[addr_r];
+            data_out <= ram[read_addr_reg];
+          end
+        always @(posedge write_clock)
+          begin
             if (we)
               begin
-                ram[addr_w] <= data_in;
+                ram[write_addr] <= data_in;
               end
           end
       end
     else if (RAM_TYPE == "al_mlab")
       begin: gen
         (* ramstyle = "MLAB" *) reg [DATA_WIDTH-1:0] ram [0:(1 << ADDR_WIDTH)-1];
-        always @(posedge clk)
+        always @(posedge read_clock)
           begin
-            data_out <= ram[addr_r];
+            data_out <= ram[read_addr_reg];
+          end
+        always @(posedge write_clock)
+          begin
             if (we)
               begin
-                ram[addr_w] <= data_in;
+                ram[write_addr] <= data_in;
               end
           end
       end
     else
       begin: gen
         reg [DATA_WIDTH-1:0] ram [0:(1 << ADDR_WIDTH)-1];
-        always @(posedge clk)
+        always @(posedge read_clock)
           begin
-            data_out <= ram[addr_r];
+            data_out <= ram[read_addr_reg];
+          end
+        always @(posedge write_clock)
+          begin
             if (we)
               begin
-                ram[addr_w] <= data_in;
+                ram[write_addr] <= data_in;
               end
           end
       end

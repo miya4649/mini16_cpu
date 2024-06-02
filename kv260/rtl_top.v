@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2018, miya
+  Copyright (c) 2024, miya
   All rights reserved.
 
   Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -13,51 +13,53 @@
   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-module top
+module rtl_top
   (
-   input        CLOCK_50,
-   input        RESET_N,
-   output [9:0] LEDR
+   input wire  clk,
+`ifdef USE_UART
+   input wire  uart_rxd,
+   output wire uart_txd,
+`endif
+   input wire  resetn,
+   output wire led
    );
 
-  wire [15:0]   led;
-  assign LEDR = led;
+  localparam UART_CLK_HZ = 510000000;
+  localparam UART_SCLK_HZ = 115200;
+  localparam ZERO = 1'd0;
+  localparam ONE = 1'd1;
+  localparam TRUE = 1'b1;
+  localparam FALSE = 1'b0;
 
-  // generate reset signal (push button 1)
-  reg  reset;
-  reg  reset1;
-  reg  resetpll;
-  reg  resetpll1;
+  wire [15:0] led_soc;
+  assign led = led_soc[0];
 
-  always @(posedge CLOCK_50)
-    begin
-      resetpll1 <= ~RESET_N;
-      resetpll <= resetpll1;
-    end
+  // reset
+  reg reset;
+  reg reset1;
+  reg reset2;
 
   always @(posedge clk)
     begin
-      reset1 <= ~pll_locked;
-      reset <= reset1;
+      reset1 <= resetn;
+      reset2 <= reset1;
+      reset <= ~reset2;
     end
 
-  // pll
-  wire clk;
-  wire pll_locked;
-
-  simple_pll_0002 simple_pll_0002_0
+  mini16_soc
+    #(
+      .UART_CLK_HZ (UART_CLK_HZ),
+      .UART_SCLK_HZ (UART_SCLK_HZ)
+      )
+  mini16_soc_0
     (
-     .refclk (CLOCK_50),
-     .rst (resetpll),
-     .outclk_0 (clk),
-     .locked (pll_locked)
-     );
-
-  mini16_soc mini16_soc_0
-    (
+`ifdef USE_UART
+     .uart_rxd (uart_rxd),
+     .uart_txd (uart_txd),
+`endif
      .clk (clk),
      .reset (reset),
-     .led (led)
+     .led (led_soc)
      );
 
 endmodule
