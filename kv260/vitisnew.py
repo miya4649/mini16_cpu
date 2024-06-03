@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import vitis, json, os, shutil
+import vitis, json, os, shutil, re
 
 project_name = 'project_1'
 platform_name = project_name + '_pf'
@@ -12,8 +12,6 @@ launch_json_path = workspace_path + '/' + app_name + '/_ide/.theia/launch.json'
 use_template = True
 template_name = 'hello_world'
 
-# Valid templates are: ['memory_tests', 'peripheral_tests', 'lwip_tcp_perf_server', 'dhrystone', 'zynqmp_fsbl', 'lwip_echo_server', 'empty_application', 'lwip_udp_perf_client', 'lwip_tcp_perf_client', 'zynqmp_dram_test', 'hello_world', 'lwip_udp_perf_server']
-
 if use_template == False:
     template_name = 'empty_application'
 
@@ -25,18 +23,27 @@ try:
 except:
     pass
 
+vitis_version = os.path.basename(os.environ.get('XILINX_VITIS'))
+
 client = vitis.create_client()
 client.set_workspace(path = workspace_path)
 
 # create platform
-platform = client.create_platform_component(name = platform_name, hw = xsa_path, os = 'standalone', no_boot_bsp = True)
+if re.match('2023', vitis_version):
+    platform = client.create_platform_component(name = platform_name, hw = xsa_path, os = 'standalone', no_boot_bsp = True)
+else:
+    platform = client.create_platform_component(name = platform_name, hw_design = xsa_path, os = 'standalone', no_boot_bsp = True)
 
 # add domain
 domain = platform.add_domain(name = domain_name, cpu = 'psu_cortexa53_0', support_app = template_name)
 platform.build()
 
 # create app
-platform_xpfm = platform.project_location + '/export/' + platform_name + '/' + platform_name + '.xpfm'
+if re.match('2023', vitis_version):
+    platform_xpfm = platform.project_location + '/export/' + platform_name + '/' + platform_name + '.xpfm'
+else:
+    platform_xpfm = client.find_platform_in_repos(platform_name)
+
 app = client.create_app_component(name = app_name, platform = platform_xpfm, domain = domain_name, template = template_name)
 
 if use_template == False:
