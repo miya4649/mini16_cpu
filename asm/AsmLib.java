@@ -605,7 +605,6 @@ public class AsmLib extends Asm
     }
   }
 
-  /* 0 <= shift_width <= 15 */
   public void lib_sli(int reg_d, int shift_width)
   {
     if ((shift_width < 0) || (shift_width > 15))
@@ -660,12 +659,11 @@ public class AsmLib extends Asm
     }
   }
 
-  /* 0 <= shift_width <= 15 */
   public void lib_sri(int reg_d, int shift_width)
   {
     if ((shift_width < 0) || (shift_width > 15))
     {
-      print_error("lib_sli: shift_width exceeds limit 0 to 15");
+      print_error("lib_sri: shift_width exceeds limit 0 to 15");
     }
     if (ENABLE_MULTI_BIT_SHIFT == 1)
     {
@@ -724,12 +722,11 @@ public class AsmLib extends Asm
     }
   }
 
-  /* 0 <= shift_width <= 15 */
   public void lib_srai(int reg_d, int shift_width)
   {
     if ((shift_width < 0) || (shift_width > 15))
     {
-      print_error("lib_sli: shift_width exceeds limit 0 to 15");
+      print_error("lib_srai: shift_width exceeds limit 0 to 15");
     }
     if (ENABLE_MULTI_BIT_SHIFT == 1)
     {
@@ -847,7 +844,7 @@ public class AsmLib extends Asm
   public void f_uart_hex_word()
   {
     // uart put hex word
-    // input: r3:value (32bit)
+    // input: r3:value
     // output: none
     // modify: r3
     // depend: f_uart_char, f_uart_hex
@@ -855,7 +852,7 @@ public class AsmLib extends Asm
     /*
     push(r4 to r6);
     r4 = r3;
-    r5 = 28;
+    r5 = WIDTH_M_D - 4;
     do
     {
       r6 = r4;
@@ -868,7 +865,7 @@ public class AsmLib extends Asm
     lib_push(SP_REG_LINK);
     lib_push_regs(R4, 3);
     as_mv(R4, R3);
-    lib_set_im(R5, 28);
+    lib_set_im(R5, WIDTH_M_D - 4);
     label("f_uart_hex_word_L_0");
     lib_wait_dep_pre();
     as_mv(R6, R4);
@@ -888,7 +885,7 @@ public class AsmLib extends Asm
   public void f_uart_hex_word_ln()
   {
     // uart register monitor
-    // input: r3:value (32bit)
+    // input: r3:value
     // output: none
     // depend: f_uart_hex_word, f_uart_hex, f_uart_char
     label("f_uart_hex_word_ln");

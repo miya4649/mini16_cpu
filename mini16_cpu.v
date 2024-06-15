@@ -626,6 +626,10 @@ module mini16_cpu
   generate
     if (ENABLE_MUL == TRUE)
       begin
+        wire signed [WIDTH_D-1:0] mul_a_s3;
+        wire signed [WIDTH_D-1:0] mul_b_s3;
+        assign mul_a_s3 = reg_data_a_s_s3;
+        assign mul_b_s3 = (is_im_s3 == TRUE) ? $signed(reg_a_s3) : reg_data_b_s_s3;
         delayed_mul
           #(
             .WIDTH_D (WIDTH_D)
@@ -633,8 +637,8 @@ module mini16_cpu
         delayed_mul_0
           (
            .clk (clk),
-           .a (reg_data_a_s4),
-           .b (reg_data_b_s4),
+           .a (mul_a_s3),
+           .b (mul_b_s3),
            .out (mul_result_s6)
            );
       end
@@ -718,12 +722,14 @@ module delayed_mul
 
   reg signed [WIDTH_D-1:0]         sa;
   reg signed [WIDTH_D-1:0]         sb;
+  reg signed [WIDTH_D-1:0]         out1;
 
   always @(posedge clk)
     begin
       sa <= a;
       sb <= b;
-      out <= sa * sb;
+      out1 <= sa * sb;
+      out <= out1;
     end
 endmodule
 

@@ -48,7 +48,7 @@ module testbench;
       $monitor("time: %d reset: %d led: %d uart_re: %d uart_data_rx: %c", $time, reset, led, uart_re, uart_data_rx);
       for (i = 0; i < (1 << DEPTH_REG); i = i + 1)
         begin
-          $dumpvars(2, testbench.mini16_soc_0.mini16_cpu_master.reg_file.rw_port_ram_a.gen.ram[i]);
+          $dumpvars(0, testbench.mini16_soc_0.mini16_cpu_master.reg_file.rw_port_ram_a.gen.ram[i]);
         end
       for (i = 0; i < 4; i = i + 1)
         begin

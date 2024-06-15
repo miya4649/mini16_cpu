@@ -9,6 +9,7 @@ xsa_path = project_name + '/design_1_wrapper.xsa'
 vitis_src_path = 'vitis_src'
 workspace_path = 'vitis_workspace'
 launch_json_path = workspace_path + '/' + app_name + '/_ide/.theia/launch.json'
+boot_bsp_n = False
 use_template = True
 template_name = 'hello_world'
 
@@ -30,9 +31,9 @@ client.set_workspace(path = workspace_path)
 
 # create platform
 if re.match('2023', vitis_version):
-    platform = client.create_platform_component(name = platform_name, hw = xsa_path, os = 'standalone', no_boot_bsp = True)
+    platform = client.create_platform_component(name = platform_name, hw = xsa_path, os = 'standalone', no_boot_bsp = boot_bsp_n)
 else:
-    platform = client.create_platform_component(name = platform_name, hw_design = xsa_path, os = 'standalone', no_boot_bsp = True)
+    platform = client.create_platform_component(name = platform_name, hw_design = xsa_path, os = 'standalone', no_boot_bsp = boot_bsp_n)
 
 # add domain
 domain = platform.add_domain(name = domain_name, cpu = 'psu_cortexa53_0', support_app = template_name)
