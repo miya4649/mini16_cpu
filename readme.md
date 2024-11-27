@@ -4,9 +4,9 @@ Very small and high performance CPU written in Verilog HDL
 
 ## Features
 
-16bit RISC like ISA
+16bit ISA
 
-Variable register, data width (16, 32, 64bits ...)
+Variable register, bus width (16, 32, 64bits ...)
 
 7 stage pipeline
 
@@ -23,6 +23,12 @@ Kintex UltraScale+ (xcku3p-ffva676-3): 51 CLB (186 LUTs)
 AMD Kria KV260: 510 MHz (Proofed)
 
 Kintex UltraScale+: 710 MHz (Simulation)
+
+## Single-cycle version of this CPU
+
+Mini16SC-CPU
+
+https://github.com/miya4649/mini16sc_cpu
 
 ## Documents and Latest Version (Japanese)
 

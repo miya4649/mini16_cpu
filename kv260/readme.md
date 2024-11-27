@@ -32,7 +32,7 @@ $ make
 
 Start the Vitis Unified IDE,
 
-"File": "Open Workspace",
+"File": "Set Workspace",
 
 Select the path mini16_cpu/kv260/vitis_workspace and OK.
 
