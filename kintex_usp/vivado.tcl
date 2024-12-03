@@ -4,7 +4,7 @@ set timing_xdc_file {timings.xdc}
 set project_name project_1
 set project_dir project_1
 set part_name xcku3p-ffva676-3-e
-set top_file top.v
+set top_module top
 
 # create project
 create_project -name $project_name -force -dir $project_dir -part $part_name
@@ -25,6 +25,6 @@ CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {710} \
 CONFIG.PRIM_SOURCE {Differential_clock_capable_pin} \
 ] [get_ips clk_wiz_0]
 
-set_property top $top_file [current_fileset]
+set_property top $top_module [current_fileset]
 
 update_compile_order -fileset sources_1
